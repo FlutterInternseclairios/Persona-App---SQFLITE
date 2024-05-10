@@ -1,6 +1,5 @@
-# persona
+# Persona - App (Flutter, SQFLITE, Clean Architecture)
 
-A new Flutter project.
-"# Persona-App---SQFLITE" 
-"# Persona-App---Flutter-SQFLITE" 
-"# Persona-App---Flutter-SQFLITE" 
+A flutter app.
+# Features:
+1.  User Authentication
