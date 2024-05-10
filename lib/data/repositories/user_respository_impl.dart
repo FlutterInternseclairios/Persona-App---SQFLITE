@@ -4,13 +4,17 @@ import 'package:persona/data/constants/user_db_constants.dart';
 import 'package:persona/data/data_types/data_types.dart';
 import 'package:persona/data/models/user_model.dart';
 import 'package:persona/data/repositories.dart';
+import 'package:persona/data/services/authentication_status.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final Future<Database> _database;
+  final AuthenticationStatus _authStatus;
 
-  UserRepositoryImpl() : _database = _initDatabase();
+  UserRepositoryImpl()
+      : _database = _initDatabase(),
+        _authStatus = AuthenticationStatus();
 
   static Future<Database> _initDatabase() async {
     const databaseName = "persona.db";
@@ -34,7 +38,6 @@ class UserRepositoryImpl implements UserRepository {
         ''');
       });
     } catch (e) {
-      print("Error initializing database: $e");
       rethrow;
     }
   }
@@ -43,13 +46,13 @@ class UserRepositoryImpl implements UserRepository {
   Future<UserModel?> getUser(String email) async {
     try {
       final Database db = await _database;
-      print("Database: $db");
       var res = await db.query(UsersDbConstants.usersTable,
           where: "email = ?", whereArgs: [email]);
       return res.isNotEmpty ? UserModel.fromMap(res.first) : null;
     } catch (e) {
       log(e.toString());
     }
+    return null;
   }
 
   @override
@@ -69,7 +72,6 @@ class UserRepositoryImpl implements UserRepository {
         where: 'id = ?',
         whereArgs: [userModel.id],
       );
-      print('UPDATE: ${userModel.id}');
       if (update == 1) {
         return true;
       } else {
@@ -88,6 +90,8 @@ class UserRepositoryImpl implements UserRepository {
     var signIn = await db.rawQuery(
         "select * from users where email = '$email' AND password = '$password'");
     if (signIn.isNotEmpty) {
+      await _authStatus.setLoggedIn(true);
+      await _authStatus.setEmail(email);
       return true;
     } else {
       return false;
@@ -95,14 +99,21 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<void> signOut() {
-    // TODO: implement signOut
+  Future<void> signOut() async {
+    await _authStatus.clear();
     throw UnimplementedError();
   }
 
   @override
-  Future<int> signUp(UserModel user) async {
+  Future<bool> signUp(UserModel user) async {
     final Database db = await _database;
-    return db.insert(UsersDbConstants.usersTable, user.toMap());
+    int signUp = await db.insert(UsersDbConstants.usersTable, user.toMap());
+    if (signUp > 0) {
+      await _authStatus.setLoggedIn(true);
+      await _authStatus.setEmail(user.email);
+      return true;
+    } else {
+      return false;
+    }
   }
 }

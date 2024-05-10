@@ -51,13 +51,6 @@ class _EditProfileState extends State<EditProfile> {
       });
     }
   }
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _usernameController = TextEditingController();
-  //   _phoneNumberController = TextEditingController();
-  //   _dobController = TextEditingController();
-  // }
 
   @override
   void dispose() {
@@ -159,7 +152,7 @@ class _EditProfileState extends State<EditProfile> {
                           email: widget.user.email,
                           password: widget.user.password,
                           phoneNumber: _phoneNumberController.text,
-                          gender: _selectedGender.toString(),
+                          gender: _selectedGender.toString().split('.').last,
                           dob: _dobController.text,
                           profilePicture: pickedImage != null
                               ? pickedImage!.path

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:persona/data/models/user_model.dart';
 import 'package:persona/data/repositories/user_respository_impl.dart';
@@ -37,13 +36,6 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       });
     }
   }
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _usernameController = TextEditingController();
-  //   _phoneNumberController = TextEditingController();
-  //   _dobController = TextEditingController();
-  // }
 
   @override
   void dispose() {
@@ -155,9 +147,9 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                           profilePicture: pickedImage!.path,
                         );
 
-                        final int userId =
+                        final bool userId =
                             await UserRepositoryImpl().signUp(user);
-                        if (userId > 0) {
+                        if (userId == true) {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
